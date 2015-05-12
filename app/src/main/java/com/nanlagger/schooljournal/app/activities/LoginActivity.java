@@ -1,6 +1,7 @@
 package com.nanlagger.schooljournal.app.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,12 +27,13 @@ public class LoginActivity extends Activity {
     TextView login;
     TextView password;
     DBHelper dbHelper;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        dbHelper = DBHelper.getHelper(this);
+        dbHelper = new DBHelper(this);
         checkAccess();
         login = (TextView) findViewById(R.id.login);
         password = (TextView) findViewById(R.id.password);
@@ -39,6 +41,7 @@ public class LoginActivity extends Activity {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog = ProgressDialog.show(LoginActivity.this, "Авторизация", "Пожайлуста подождите...", true);
                 signIn.setEnabled(false);
                 AsyncLogin loginTask = new AsyncLogin(LoginActivity.this);
                 loginTask.execute(login.getText().toString(), password.getText().toString());
@@ -58,6 +61,7 @@ public class LoginActivity extends Activity {
     }
 
     public void showError(String message) {
+        dialog.dismiss();
         signIn.setEnabled(true);
         TextView error = (TextView) findViewById(R.id.error);
         error.setText(message);

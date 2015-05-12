@@ -2,18 +2,8 @@ package com.nanlagger.schooljournal.app.utils;
 
 import android.os.AsyncTask;
 import com.nanlagger.schooljournal.app.activities.LoginActivity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by NaNLagger on 10.05.15.
@@ -23,6 +13,7 @@ import java.util.List;
 public class AsyncLogin extends AsyncTask<String, Integer, Boolean> {
     private final String URL_SERVER = "http://elenastuly.ru.xn--80aauktf0a4f.xn--80aswg/yii/SchoolJournal/index.php?r=export/index";
     private LoginActivity activity;
+    private String errorString = "";
 
     public AsyncLogin(LoginActivity activity) {
         this.activity = activity;
@@ -52,6 +43,10 @@ public class AsyncLogin extends AsyncTask<String, Integer, Boolean> {
             JSONObject main = new JSONObject(response);
             return main.getString("login").equalsIgnoreCase("success");
         } catch (JSONException e) {
+            errorString = "Incorrect login or password";
+            return false;
+        } catch (NullPointerException e) {
+            errorString = "Network error";
             return false;
         }
     }
@@ -61,7 +56,7 @@ public class AsyncLogin extends AsyncTask<String, Integer, Boolean> {
         if(success) {
             activity.accessTrue();
         } else {
-            activity.showError("Incorrect login or password");
+            activity.showError(errorString);
         }
     }
 }
