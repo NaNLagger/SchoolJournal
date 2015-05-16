@@ -29,8 +29,39 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE profile ("
                         + "_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                         + "login     TEXT    NOT NULL, "
-                        + "password  TEXT NOT NULL "
+                        + "password  TEXT NOT NULL ,"
+                        + "name TEXT,"
+                        + "class_name TEXT"
                         + ");"
+        );
+
+        db.execSQL("CREATE TABLE journals ("
+                        + "_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                        + "journal_id INTEGER NOT NULL, "
+                        + "subject_name     TEXT"
+                        + ");"
+        );
+
+        db.execSQL("CREATE TABLE lessons ("
+                        + "_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                        + "lesson_id INTEGER NOT NULL, "
+                        + "journal_id INTEGER NOT NULL "
+                        + "); "
+        );
+
+        db.execSQL("CREATE TABLE scopes ("
+                        + "_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                        + "lesson_id INTEGER NOT NULL, "
+                        + "scope INTEGER"
+                        + "); "
+        );
+
+        db.execSQL("CREATE TABLE messages ("
+                        + "_id      INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                        + "message_id INTEGER NOT NULL, "
+                        + "message INTEGER, "
+                        + "read BOOLEAN DEFAULT (0)"
+                        + "); "
         );
 
     }

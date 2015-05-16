@@ -11,7 +11,7 @@ import org.json.JSONObject;
  * @author Stepan Lyashenko
  */
 public class AsyncLogin extends AsyncTask<String, Integer, Boolean> {
-    private final String URL_SERVER = "http://elenastuly.ru.xn--80aauktf0a4f.xn--80aswg/yii/SchoolJournal/index.php?r=export/index";
+    private final String URL_SERVER = "http://elenastuly.ru.xn--80aauktf0a4f.xn--80aswg/yii/SchoolJournal/index.php?r=export/register";
     private LoginActivity activity;
     private String errorString = "";
 
@@ -24,14 +24,16 @@ public class AsyncLogin extends AsyncTask<String, Integer, Boolean> {
         String jsonResponse = null;
         String login = "";
         String password = "";
+        String reg_id = "";
         try {
             login = params[0];
             password = params[1];
+            reg_id = params[2];
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
         try {
-            jsonResponse = HttpClientWrapper.simpleGet(URL_SERVER + "&username=" + login + "&password=" + password);
+            jsonResponse = HttpClientWrapper.simpleGet(URL_SERVER + "&username=" + login + "&password=" + password + "&reg_id=" + reg_id);
         } catch (Exception e) {
             e.printStackTrace();
         }

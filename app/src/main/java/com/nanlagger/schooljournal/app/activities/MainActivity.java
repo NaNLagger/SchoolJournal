@@ -16,16 +16,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import com.nanlagger.schooljournal.app.R;
+import com.nanlagger.schooljournal.app.entities.JournalEntities;
+import com.nanlagger.schooljournal.app.entities.LessonEntities;
+import com.nanlagger.schooljournal.app.entities.MessageEntities;
+import com.nanlagger.schooljournal.app.entities.ScopeEntities;
+import com.nanlagger.schooljournal.app.fragments.MessagesFragment;
 import com.nanlagger.schooljournal.app.fragments.NavigationDrawerFragment;
-import com.nanlagger.schooljournal.app.utils.DBHelper;
+import com.nanlagger.schooljournal.app.fragments.ProfileFragment;
+import com.nanlagger.schooljournal.app.fragments.ScopesFragment;
+import com.nanlagger.schooljournal.app.utils.*;
 
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks{
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     private CharSequence mTitle;
     private DBHelper dbHelper;
+
+    private int fragmentID = 0;
+    private TaskCallback taskCallback = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +54,86 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        if(position == 3) {
-            logout();
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            this.finish();
-        }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
+        SharedPreferences preferences = getSharedPreferences("com.nanlagger.schooljournal", MODE_PRIVATE);
+        AsyncLoader loader;
+        fragmentID = position;
+        switch (position) {
+            case 0:
+                ProfileFragment fragment = ProfileFragment.newInstance(position + 1);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, fragment)
+                        .commit();
+                taskCallback = fragment;
+                loader = new AsyncProfileLoader(fragment);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+            case 1:
+                ScopesFragment fragment1 = ScopesFragment.newInstance(position + 1);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, fragment1)
+                        .commit();
+                taskCallback = fragment1;
+                JournalEntities.getInstance().save();
+                loader = new AsyncJournalsLoader(fragment1);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                LessonEntities.getInstance().save();
+                AsyncLessonsLoader loader1 = new AsyncLessonsLoader(fragment1);
+                loader1.execute(preferences.getString("login",""),preferences.getString("password",""));
+                ScopeEntities.getInstance().save();
+                AsyncScopesLoader loader2 = new AsyncScopesLoader(fragment1);
+                loader2.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+            case 2:
+                MessagesFragment fragment2 = MessagesFragment.newInstance(position + 1);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, fragment2)
+                        .commit();
+                taskCallback = fragment2;
+                MessageEntities.getInstance().save();
+                loader = new AsyncMessageLoader(fragment2);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+            case 3:
+                logout();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                this.finish();
+                break;
+            default:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                        .commit();
+                break;
+        }
+
+    }
+
+    public void updateFragment() {
+        SharedPreferences preferences = getSharedPreferences("com.nanlagger.schooljournal", MODE_PRIVATE);
+        AsyncLoader loader;
+        switch (fragmentID) {
+            case 0:
+                loader = new AsyncProfileLoader(taskCallback);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+            case 1:
+                JournalEntities.getInstance().save();
+                loader = new AsyncJournalsLoader(taskCallback);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                LessonEntities.getInstance().save();
+                AsyncLessonsLoader loader1 = new AsyncLessonsLoader(taskCallback);
+                loader1.execute(preferences.getString("login",""),preferences.getString("password",""));
+                ScopeEntities.getInstance().save();
+                AsyncScopesLoader loader2 = new AsyncScopesLoader(taskCallback);
+                loader2.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+            case 2:
+                MessageEntities.getInstance().save();
+                loader = new AsyncMessageLoader(taskCallback);
+                loader.execute(preferences.getString("login",""),preferences.getString("password",""));
+                break;
+        }
     }
 
     public void onSectionAttached(int number) {
@@ -106,6 +186,10 @@ public class MainActivity extends ActionBarActivity
         editor.commit();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete("profile", null, null);
+        db.delete("messages", null, null);
+        db.delete("lessons", null, null);
+        db.delete("journals", null, null);
+        db.delete("scopes", null, null);
         db.close();
     }
 
