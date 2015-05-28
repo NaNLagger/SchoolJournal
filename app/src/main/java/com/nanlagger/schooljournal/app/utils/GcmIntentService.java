@@ -16,6 +16,9 @@
 
 package com.nanlagger.schooljournal.app.utils;
 
+import android.app.Notification;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.IntentService;
@@ -29,6 +32,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import com.nanlagger.schooljournal.app.R;
 import com.nanlagger.schooljournal.app.activities.DemoActivity;
+import com.nanlagger.schooljournal.app.activities.LoginActivity;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
@@ -78,7 +82,7 @@ public class GcmIntentService extends IntentService {
                 }
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
+                sendNotification(extras.getString("message"));
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -93,17 +97,19 @@ public class GcmIntentService extends IntentService {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent intent = new Intent(this, DemoActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.putExtra("message", msg);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 intent, 0);
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-        .setSmallIcon(R.drawable.ic_launcher)
-        .setContentTitle("GCM Notification")
+                        .setSmallIcon(R.drawable.ic_notification)
+                        .setContentTitle("Оповещение")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
         .setContentText(msg);
+        mBuilder.setSound(alarmSound);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

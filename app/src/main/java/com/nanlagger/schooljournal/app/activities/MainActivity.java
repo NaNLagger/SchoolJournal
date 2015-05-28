@@ -37,6 +37,8 @@ public class MainActivity extends ActionBarActivity
     private int fragmentID = 0;
     private TaskCallback taskCallback = null;
 
+    public static final String EXTRA_MESSAGE = "message";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,9 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        if(getIntent().getExtras().containsKey(EXTRA_MESSAGE)) {
+            onNavigationDrawerItemSelected(2);
+        }
     }
 
     @Override

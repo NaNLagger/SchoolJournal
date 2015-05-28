@@ -1,6 +1,7 @@
 package com.nanlagger.schooljournal.app.activities;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -22,6 +23,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.nanlagger.schooljournal.app.R;
 import com.nanlagger.schooljournal.app.utils.AsyncLogin;
 import com.nanlagger.schooljournal.app.utils.DBHelper;
+import com.nanlagger.schooljournal.app.utils.GcmIntentService;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -56,7 +58,9 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         context = getApplicationContext();
-
+        NotificationManager notificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(GcmIntentService.NOTIFICATION_ID);
         // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
             gcm = GoogleCloudMessaging.getInstance(this);
@@ -88,6 +92,11 @@ public class LoginActivity extends Activity {
 
     private void showMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        try {
+            intent.putExtras(getIntent().getExtras());
+        } catch (NullPointerException e) {
+
+        }
         startActivity(intent);
         this.finish();
     }
